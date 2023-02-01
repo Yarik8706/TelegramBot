@@ -1,0 +1,8 @@
+pyowm~=3.3.0
+bs4
+openai~=0.26.1
+aiogram==2.24
+whisper.ai
+requests==2.28.2
+pydub~=0.25.1
+ffmpeg
