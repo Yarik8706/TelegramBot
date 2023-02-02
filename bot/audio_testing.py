@@ -1,15 +1,14 @@
 import logging
-from aiogram import Bot, Dispatcher, types, executor
-import config
-import openai
+import pathlib
+
 import whisper
-import requests
-from pathlib import Path
 from pydub import AudioSegment
-import ffmpeg
 
 model = whisper.load_model("base")
-AudioSegment.from_ogg("./voice.ogg").export("audio", format="mp3")
+print(str(pathlib.Path().parent.absolute()) + "\\cash\\voice.ogg")
+voice = AudioSegment.from_ogg(str(pathlib.Path().parent.absolute()) + "\\cash\\voice.ogg");
+
+voice.export("audio", format="mp3")
 
 audio = whisper.load_audio("audio.mp3")
 
@@ -20,3 +19,4 @@ _, probs = model.detect_language(mel)
 print(f"Detected language: {max(probs, key=probs.get)}")
 options = whisper.DecodingOptions()
 result = whisper.decode(model, mel, options)
+print(result)

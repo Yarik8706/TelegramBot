@@ -2,13 +2,13 @@ import logging
 from aiogram import Bot, Dispatcher, types, executor
 import config
 import openai
-import whisper
+# import whisper
 import requests
-from pathlib import Path
-from pydub import AudioSegment
+# from pathlib import Path
+# from pydub import AudioSegment
 
 
-model = whisper.load_model("base")
+# model = whisper.load_model("base")
 
 logging.basicConfig(level=logging.INFO)
 
@@ -72,7 +72,9 @@ async def any_message(message: types.Message):
     chat_dest = message.chat.id
     user_msg = message.text
     if user_msg.lower().find('нейросеть') == -1 and message['chat']['type'] != "private" \
-            or message.reply_to_message and not message.reply_to_message.from_user.username == config.MYUSERNAME:
+            and not message.reply_to_message:
+        return
+    if message.reply_to_message and not message.reply_to_message.from_user.username == config.MYUSERNAME:
         return
     print(message["from"]["username"] + ": " + user_msg)
     text = ai_answer(message["from"]["username"] + ": " + user_msg)
@@ -82,25 +84,25 @@ async def any_message(message: types.Message):
     await bot.send_message(chat_dest, text, reply_to_message_id=message.message_id)
 
 
-@bot_controller.message_handler(content_types=["voice"])
-async def audio_message(message: types.Message):
-    voice = message.voice
-    file_info = await bot.get_file(voice.file_id)
-    response = requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(config.TELEGRAMBOTTOKEN,
-                                                                              file_info.file_path))
-    voice = Path('./input/voice.ogg')
-    voice.write_bytes(response.content)
-    AudioSegment.from_file("/input/voice").export("/output/audio", format="mp3")
-    audio = whisper.load_audio("/output/audio.mp3")
-    audio = whisper.pad_or_trim(audio)
-    mel = whisper.log_mel_spectrogram(audio).to(model.device)
-
-    _, probs = model.detect_language(mel)
-    print(f"Detected language: {max(probs, key=probs.get)}")
-    options = whisper.DecodingOptions()
-    result = whisper.decode(model, mel, options)
-
-    await bot.send_message(message.chat.id, result.text)
+# @bot_controller.message_handler(content_types=["voice"])
+# async def audio_message(message: types.Message):
+#     voice = message.voice
+#     file_info = await bot.get_file(voice.file_id)
+#     response = requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(config.TELEGRAMBOTTOKEN,
+#                                                                               file_info.file_path))
+#     voice = Path('./input/voice.ogg')
+#     voice.write_bytes(response.content)
+#     AudioSegment.from_file("/input/voice").export("/output/audio", format="mp3")
+#     audio = whisper.load_audio("/output/audio.mp3")
+#     audio = whisper.pad_or_trim(audio)
+#     mel = whisper.log_mel_spectrogram(audio).to(model.device)
+#
+#     _, probs = model.detect_language(mel)
+#     print(f"Detected language: {max(probs, key=probs.get)}")
+#     options = whisper.DecodingOptions()
+#     result = whisper.decode(model, mel, options)
+#
+#     await bot.send_message(message.chat.id, result.text)
 
 
 if __name__ == '__main__':
