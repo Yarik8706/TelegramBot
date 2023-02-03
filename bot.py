@@ -2,13 +2,6 @@ import logging
 from aiogram import Bot, Dispatcher, types, executor
 import config
 import openai
-# import whisper
-import requests
-# from pathlib import Path
-# from pydub import AudioSegment
-
-
-# model = whisper.load_model("base")
 
 logging.basicConfig(level=logging.INFO)
 
@@ -87,7 +80,7 @@ async def any_message(message: types.Message):
 # @bot_controller.message_handler(content_types=["voice"])
 # async def audio_message(message: types.Message):
 #     voice = message.voice
-#     file_info = await bot.get_file(voice.file_id)
+#     file_info = await tests.get_file(voice.file_id)
 #     response = requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(config.TELEGRAMBOTTOKEN,
 #                                                                               file_info.file_path))
 #     voice = Path('./input/voice.ogg')
@@ -102,7 +95,7 @@ async def any_message(message: types.Message):
 #     options = whisper.DecodingOptions()
 #     result = whisper.decode(model, mel, options)
 #
-#     await bot.send_message(message.chat.id, result.text)
+#     await tests.send_message(message.chat.id, result.text)
 
 
 if __name__ == '__main__':
