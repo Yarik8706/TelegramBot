@@ -1,4 +1,4 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 import logging
 from aiogram import Bot, Dispatcher, types, executor
 import config
