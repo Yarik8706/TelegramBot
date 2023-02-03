@@ -1,8 +1,9 @@
+# coding=utf-8
 import logging
 from aiogram import Bot, Dispatcher, types, executor
 import config
 import openai
-# coding=UTF-8
+
 logging.basicConfig(level=logging.INFO)
 
 bot = Bot(config.TELEGRAMBOTTOKEN)
