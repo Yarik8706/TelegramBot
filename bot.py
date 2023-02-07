@@ -2,7 +2,7 @@
 import logging
 from aiogram import Bot, Dispatcher, types, executor
 import config
-import openai
+import openai 
 
 logging.basicConfig(level=logging.INFO)
 
