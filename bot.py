@@ -2,7 +2,7 @@
 import logging
 from aiogram import Bot, Dispatcher, types, executor
 import config
-import openai 
+import openai
 
 logging.basicConfig(level=logging.INFO)
 
@@ -11,7 +11,7 @@ bot_controller = Dispatcher(bot)
 
 openai.api_key = config.OPENAITOKEN
 
-start_sequence = "\nAI:"
+start_sequence = "\nAI"
 restart_sequence = "\nHuman: "
 bad_message = "Простите я не знаю как на это ответить"
 bot_history = []
@@ -37,8 +37,14 @@ def ai_answer(answer):
 @bot_controller.message_handler(commands=['reset'], commands_prefix="!/")
 async def command_1(message: types.Message):
     chat_dest = message['chat']['id']
-    bot_history.clear()
+    clear_bot_history()
     await bot.send_message(chat_dest, "Я успешно очистилась!")
+
+
+def clear_bot_history():
+    global bot_history
+    part_old_history = [bot_history[-2], bot_history[-1]]
+    bot_history = part_old_history
 
 
 @bot_controller.message_handler(commands=['unpack'], commands_prefix="!/")
@@ -65,17 +71,29 @@ async def command_3(message: types.Message):
 async def any_message(message: types.Message):
     chat_dest = message.chat.id
     user_msg = message.text
+    print("Reg")
+    if message.content_type != "text":
+        return
     if user_msg.lower().find('нейросеть') == -1 and message['chat']['type'] != "private" \
             and not message.reply_to_message:
         return
-    if message.reply_to_message and not message.reply_to_message.from_user.username == config.MYUSERNAME:
+    if message.reply_to_message and not message.reply_to_message.from_user.username == config.MYUSERNAME \
+            and user_msg.lower().find('нейросеть') == -1:
         return
+    if user_msg.lower().find('нейросеть') != -1 and message['chat']['type'] != "private" and message.reply_to_message:
+        user_msg += " \"" + message.reply_to_message.text + "\""
     print(message["from"]["username"] + ": " + user_msg)
     text = ai_answer(message["from"]["username"] + ": " + user_msg)
-    if text != bad_message:
-        bot_history.append(message["from"]["username"] + ": " + user_msg)
-        bot_history.append(start_sequence + text)
     await bot.send_message(chat_dest, text, reply_to_message_id=message.message_id)
+    if text != bad_message:
+        add_new_message_to_history(message["from"]["username"], user_msg)
+        bot_history.append(start_sequence + text)
+    else:
+        clear_bot_history()
+
+
+def add_new_message_to_history(name, text):
+    bot_history.append(name + ": " + text)
 
 
 # @bot_controller.message_handler(content_types=["voice"])
