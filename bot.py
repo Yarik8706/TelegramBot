@@ -43,8 +43,7 @@ async def command_1(message: types.Message):
 
 def clear_bot_history():
     global bot_history
-    part_old_history = [bot_history[-2], bot_history[-1]]
-    bot_history = part_old_history
+    bot_history = []
 
 
 @bot_controller.message_handler(commands=['unpack'], commands_prefix="!/")
@@ -87,7 +86,6 @@ async def any_message(message: types.Message):
     await bot.send_message(chat_dest, text, reply_to_message_id=message.message_id)
     if text != bad_message:
         add_new_message_to_history(message["from"]["username"], user_msg)
-        bot_history.append(start_sequence + text)
     else:
         clear_bot_history()
 
