@@ -15,6 +15,7 @@ start_sequence = "\nAI"
 restart_sequence = "\nHuman: "
 bad_message = "Простите я не знаю как на это ответить"
 bot_history = []
+logs = []
 
 
 def ai_answer(answer):
@@ -30,7 +31,8 @@ def ai_answer(answer):
             presence_penalty=0.6,
             stop=[" Human:", " AI:"]
         )["choices"][0]["text"]
-    except:
+    except Exception as e:
+        logs.append(e.__str__() + "\n")
         return bad_message
 
 
@@ -64,6 +66,12 @@ async def command_3(message: types.Message):
     )
     image_url = response['data'][0]['url']
     await bot.send_photo(chat_dest, image_url, reply_to_message_id=message.message_id)
+
+
+@bot_controller.message_handler(commands=['logs'], commands_prefix="!/")
+async def command_4(message: types.Message):
+    chat_dest = message['chat']['id']
+    await bot.send_message(chat_dest, "".join(logs), reply_to_message_id=message.message_id)
 
 
 @bot_controller.message_handler(content_types=["text"])
