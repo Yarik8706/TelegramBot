@@ -1,8 +1,8 @@
 import os
 
-# TELEGRAMBOTTOKEN = os.environ.get('API_BOT')
-TELEGRAMBOTTOKEN = "5804772518:AAG2yNDZbLzSgCFdiHqwCXFkdyLNhsoux_g"
+TELEGRAMBOTTOKEN = os.environ.get('API_BOT')
+# TELEGRAMBOTTOKEN = "5812074745:AAHQOWc_ov2aUOn_JDWT-u4XKddKVajNRmM"
 OPENAITOKEN = os.environ.get('API_AI')
-# OPENAITOKEN = "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"
+# OPENAITOKEN = "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"
 MYUSERNAME = os.environ.get('BOT_TAG')
-# MYUSERNAME = "exweather_bot"
+# MYUSERNAME = "ai7906_bot"
