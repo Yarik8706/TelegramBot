@@ -17,7 +17,7 @@ bad_message = "Простите я не знаю как на это ответи
 bot_history = []
 logs = []
 
-
+ 
 def ai_answer(answer):
     try:
         return openai.Completion.create(
