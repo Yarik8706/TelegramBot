@@ -10,27 +10,23 @@ bot = Bot(config.TELEGRAMBOTTOKEN)
 bot_controller = Dispatcher(bot)
 
 openai.api_key = config.OPENAITOKEN
+openai.api_base = "https://neuroapi.host/v1"
 
 start_sequence = "\nAI"
 restart_sequence = "\nHuman: "
 bad_message = "Простите я не знаю как на это ответить"
-bot_history = []
+conversation = [{"role": "system", "content": "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly and you're also a robo cat girl."}]
 logs = []
 
- 
-def ai_answer(answer):
+
+def ai_answer():
     try:
-        return openai.Completion.create(
-            model="text-davinci-003",
-            prompt="The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.\n" + "".join(
-                bot_history) + answer + "\nAI:",
-            temperature=0.9,
-            max_tokens=2000,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0.6,
-            stop=[" Human:", " AI:"]
-        )["choices"][0]["text"]
+        print("Get response")
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=conversation
+        )
+        return response["choices"][0]["message"]["content"]
     except Exception as e:
         logs.append(e.__str__() + "\n")
         return bad_message
@@ -44,15 +40,19 @@ async def command_1(message: types.Message):
 
 
 def clear_bot_history():
-    global bot_history
-    bot_history = []
+    global conversation
+    conversation = [{"role": "system", "content": "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly and you're also a robo cat girl."}]
 
 
 @bot_controller.message_handler(commands=['unpack'], commands_prefix="!/")
 async def command_2(message: types.Message):
     chat_dest = message['chat']['id']
     await bot.send_message(chat_dest, "Пересылаю текущую историю сообщений:")
-    await bot.send_message(chat_dest, "".join(bot_history))
+    text_history = ""
+    for mes in conversation:
+        text_history = text_history + "\n" + mes["role"] + " : " + mes['content']
+
+    await bot.send_message(chat_dest, text_history)
 
 
 @bot_controller.message_handler(commands=['image'], commands_prefix="!/")
@@ -76,9 +76,7 @@ async def command_4(message: types.Message):
 
 @bot_controller.message_handler(content_types=["text"])
 async def any_message(message: types.Message):
-    chat_dest = message.chat.id
     user_msg = message.text
-    print("Reg")
     if message.content_type != "text":
         return
     if user_msg.lower().find('нейросеть') == -1 and message['chat']['type'] != "private" \
@@ -89,17 +87,14 @@ async def any_message(message: types.Message):
         return
     if user_msg.lower().find('нейросеть') != -1 and message['chat']['type'] != "private" and message.reply_to_message:
         user_msg += " \"" + message.reply_to_message.text + "\""
-    print(message["from"]["username"] + ": " + user_msg)
-    text = ai_answer(message["from"]["username"] + ": " + user_msg)
-    await bot.send_message(chat_dest, text, reply_to_message_id=message.message_id)
-    if text != bad_message:
-        add_new_message_to_history(message["from"]["username"], user_msg)
-    else:
-        clear_bot_history()
+    add_new_message_to_history(message["from"]["username"], user_msg)
+    text = ai_answer()
+    await bot.send_message(message.chat.id, text, reply_to_message_id=message.message_id)
+    add_new_message_to_history("AI", text)
 
 
 def add_new_message_to_history(name, text):
-    bot_history.append(name + ": " + text)
+    conversation.append({"role": "system", "content": name + " : " + text})
 
 
 # @bot_controller.message_handler(content_types=["voice"])
